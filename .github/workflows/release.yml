@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x86_64
+          - os: macos-latest
+            name: macos-aarch64
+          - os: windows-latest
+            name: windows-x86_64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cargo build
+        run: cargo build --release --locked
+
+      - name: Strip (Unix)
+        if: runner.os != 'Windows'
+        run: strip target/release/count-files
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          mkdir -p packaging
+          cd target/release
+          tar czvf "../../packaging/count-files-${VERSION}-${{ matrix.name }}.tar.gz" count-files
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        env:
+          VERSION: ${{ github.ref_name }}
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force packaging | Out-Null
+          Compress-Archive -Path target/release/count-files.exe -DestinationPath "packaging/count-files-${env:VERSION}-windows-x86_64.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.name }}
+          path: packaging/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: package-*
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
