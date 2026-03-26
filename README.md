@@ -6,54 +6,12 @@ Regular files are walked recursively; symbolic links are skipped. Extensions in 
 
 ## Installation
 
-### Prebuilt binaries (GitHub Releases)
-
-Push a version tag (for example `v0.1.0`) to GitHub. The workflow in `.github/workflows/release.yml` builds Linux (x86_64), macOS (Apple Silicon), and Windows (x86_64) archives and attaches them to a new **Releases** entry.
-
-1. Open your repo’s **Releases** page on GitHub.
-2. Download the archive for your OS (`*.tar.gz` or `*.zip`).
-3. Extract the `count-files` binary (or `count-files.exe` on Windows).
-4. Put it on your `PATH`, or run it with a path (for example `./count-files` from the folder that contains the binary).
-
-### Install with Cargo (from Git)
-
-Requires [Rust](https://www.rust-lang.org/tools/install). Replace the URL with your repository:
+- **Binary:** [Releases](https://github.com/srgsol/count-files/releases) — download the archive for your OS, unpack, run `./count-files` (or add the binary to your `PATH`).
+- **Cargo:** with [Rust](https://www.rust-lang.org/tools/install) installed:
 
 ```bash
-cargo install --locked --git https://github.com/YOUR_USER/count-files.git
+cargo install --locked --git https://github.com/srgsol/count-files.git
 ```
-
-Pin a release:
-
-```bash
-cargo install --locked --git https://github.com/YOUR_USER/count-files.git --tag v0.1.0
-```
-
-### Install from crates.io (optional)
-
-If you [`cargo publish`](https://doc.rust-lang.org/cargo/reference/publishing.html) this crate, others can run:
-
-```bash
-cargo install count-files
-```
-
-### Build from a clone
-
-Requires a recent stable Rust toolchain (edition 2021).
-
-```bash
-git clone https://github.com/YOUR_USER/count-files.git
-cd count-files
-cargo build --release
-```
-
-The binary is `target/release/count-files` (`count-files.exe` on Windows). Install for your user:
-
-```bash
-cargo install --locked --path .
-```
-
-That copies the binary into `~/.cargo/bin` if that directory is on your `PATH`.
 
 ## Usage
 
